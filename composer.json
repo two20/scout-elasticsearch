@@ -1,0 +1,34 @@
+{
+    "name": "asolopovas/scout-elasticsearch",
+    "description": "Elasticsearch driver for Scout",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Andrius Solopovas",
+            "email": "andrius.solopovas@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "ScoutEngines\\Elasticsearch\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true,
+    "require": {
+        "php": ">=5.6.4",
+        "elasticsearch/elasticsearch": "^5.0",
+        "laravel/scout": "^1.1"
+    },
+    "require-dev": {
+        "fzaninotto/faker": "^1.6",
+        "phpunit/phpunit": "^5.7",
+        "mockery/mockery": "^0.9.6"
+    }
+}
