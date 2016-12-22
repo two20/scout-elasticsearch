@@ -1,11 +1,11 @@
 <?php
 namespace Tests;
 
-use Mockery;
+use Illuminate\Database\Eloquent\Collection;
 use Laravel\Scout\Builder;
+use Mockery;
 use ScoutEngines\Elasticsearch\ElasticsearchEngine;
 use Tests\Fixtures\ElasticsearchEngineTestModel;
-use Illuminate\Database\Eloquent\Collection;
 
 class ElasticsearchEngineTest extends AbstractTestCase
 {
@@ -57,27 +57,23 @@ class ElasticsearchEngineTest extends AbstractTestCase
             'index' => 'index_name',
             'type'  => 'table',
             'body'  => [
-                'query' => [
-                    'bool' => [
-                        'must'   => [
-                            'match_all' => [
-                                'query'     => 'zonda',
-                                'fuzziness' => 1,
-                            ],
-                        ],
-                        'filter' => [
-                            [
-                                'term' => [
-                                    'foo' => 1,
-                                ],
-                            ],
+                'must'   => [
+                    'match_all' => [
+                        'query'     => 'zonda',
+                        'fuzziness' => 1,
+                    ],
+                ],
+                'filter' => [
+                    [
+                        'term' => [
+                            'foo' => 1,
                         ],
                     ],
                 ],
             ],
             'size'  => 10000,
         ]);
-        $engine = new ElasticsearchEngine($client, 'index_name');
+        $engine  = new ElasticsearchEngine($client, 'index_name');
         $builder = new Builder(new ElasticsearchEngineTestModel, 'zonda');
         $builder->where('foo', 1);
         $engine->search($builder);
@@ -87,18 +83,18 @@ class ElasticsearchEngineTest extends AbstractTestCase
     {
         $client = Mockery::mock('Elasticsearch\Client');
         $engine = new ElasticsearchEngine($client, 'index_name');
-        $model = Mockery::mock('StdClass');
+        $model  = Mockery::mock('StdClass');
         $model->shouldReceive('getKeyName')
-              ->andReturn('id');
+            ->andReturn('id');
         $model->shouldReceive('getQualifiedKeyName')
-              ->andReturn('id');
+            ->andReturn('id');
         $model->shouldReceive('whereIn')
-              ->once()
-              ->with('id', [1])
-              ->andReturn($model);
+            ->once()
+            ->with('id', [1])
+            ->andReturn($model);
         $model->shouldReceive('get')
-              ->once()
-              ->andReturn(Collection::make([new ElasticsearchEngineTestModel]));
+            ->once()
+            ->andReturn(Collection::make([new ElasticsearchEngineTestModel]));
         $results = $engine->map([
             'hits' => [
                 'hits' => [
@@ -129,7 +125,7 @@ class ElasticsearchEngineTest extends AbstractTestCase
 
     public function test_real_elasticsearch_delete()
     {
-        $engine = $this->getRealElasticsearchEngine();
+        $engine     = $this->getRealElasticsearchEngine();
         $collection = Collection::make([new ElasticsearchEngineTestModel]);
         $engine->update($collection);
         $builder = new Builder(new ElasticsearchEngineTestModel, '1');
@@ -157,13 +153,13 @@ class ElasticsearchEngineTest extends AbstractTestCase
     protected function getRealElasticsearchClient()
     {
         return \Elasticsearch\ClientBuilder::create()
-                                           ->setHosts(['127.0.0.1:9200'])
-                                           ->setRetries(0)
-                                           ->build();
+            ->setHosts(['127.0.0.1:9200'])
+            ->setRetries(0)
+            ->build();
     }
 
     /**
-     * @param  \Elasticsearch\Client $client
+     * @param \Elasticsearch\Client $client
      */
     protected function resetIndex(\Elasticsearch\Client $client)
     {
@@ -175,7 +171,7 @@ class ElasticsearchEngineTest extends AbstractTestCase
     }
 
     /**
-     * @param  \Elasticsearch\Client $client
+     * @param \Elasticsearch\Client $client
      */
     protected function markSkippedIfMissingElasticsearch(\Elasticsearch\Client $client)
     {
