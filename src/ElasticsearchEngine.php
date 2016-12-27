@@ -131,13 +131,8 @@ class ElasticsearchEngine extends Engine
      */
     protected function performSearch(Builder $builder, array $options = [])
     {
-        $filters   = [];
-        $matches[] = [
-            'term' => [
-                'query'     => $builder->query,
-                'fuzziness' => 1,
-            ],
-        ];
+        $filters = [];
+        // print_r(json_encode($builder->query, JSON_PRETTY_PRINT));
         if (array_key_exists('filters', $options) && $options['filters']) {
             foreach ($options['filters'] as $field => $value) {
                 if (is_numeric($value)) {
@@ -164,7 +159,11 @@ class ElasticsearchEngine extends Engine
             'body'  => [
                 'query' => [
                     'bool' => [
-                        'must'   => $matches,
+                        'must'   => [
+                            'query_string' => [
+                                'query' => $builder->query,
+                            ],
+                        ],
                         'filter' => $filters,
                     ],
                 ],
@@ -179,7 +178,7 @@ class ElasticsearchEngine extends Engine
         if ($builder->callback) {
             return call_user_func($builder->callback, $this->elasticsearch, $query);
         }
-        print_r($query); die();
+        // print_r(json_encode($query, JSON_PRETTY_PRINT));
         return $this->elasticsearch->search($query);
     }
 

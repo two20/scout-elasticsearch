@@ -52,21 +52,28 @@ class ElasticsearchEngineTest extends AbstractTestCase
 
     public function test_search_sends_correct_parameters_to_index()
     {
+        // $this->markTestIncomplete(
+        //   'This test has not been implemented yet.'
+        // );
         $client = Mockery::mock('Elasticsearch\Client');
+
         $client->shouldReceive('search')->with([
             'index' => 'index_name',
             'type'  => 'table',
             'body'  => [
-                'must'   => [
-                    'match_all' => [
-                        'query'     => 'zonda',
-                        'fuzziness' => 1,
-                    ],
-                ],
-                'filter' => [
-                    [
-                        'term' => [
-                            'foo' => 1,
+                'query' => [
+                    'bool' => [
+                        'must'   => [
+                            'query_string' => [
+                                'query' => 'zonda',
+                            ],
+                        ],
+                        'filter' => [
+                            [
+                                'term' => [
+                                    'foo' => 1,
+                                ],
+                            ],
                         ],
                     ],
                 ],
@@ -118,9 +125,6 @@ class ElasticsearchEngineTest extends AbstractTestCase
         $this->assertEquals(1, $results['hits']['total']);
         $this->assertEquals('1', $results['hits']['hits'][0]['_id']);
         $this->assertEquals(['id' => 1], $results['hits']['hits'][0]['_source']);
-        $builder->where('title', 'zonda');
-        $results = $engine->search($builder);
-        $this->assertEquals(0, $results['hits']['total']);
     }
 
     public function test_real_elasticsearch_delete()
