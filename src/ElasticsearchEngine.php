@@ -132,54 +132,54 @@ class ElasticsearchEngine extends Engine
     protected function performSearch(Builder $builder, array $options = [])
     {
         $filters = [];
-        // print_r(json_encode($builder->query, JSON_PRETTY_PRINT));
+        //
         if (array_key_exists('filters', $options) && $options['filters']) {
             foreach ($options['filters'] as $field => $value) {
                 if (is_numeric($value)) {
-                    $filters[] = [
-                        'term' => [
-                            $field => $value,
-                        ],
-                    ];
-                } elseif (is_string($value)) {
-                    $matches[] = [
-                        'term' => [
-                            $field => [
-                                'query'    => $value,
-                                'operator' => 'and',
-                            ],
-                        ],
-                    ];
+                    # code...
                 }
+                $filters[] = [
+                    'term' => [
+                        $field => $value,
+                    ],
+                ];
             }
         }
-        $query = [
+
+        $params = [
             'index' => $this->index,
             'type'  => $builder->model->searchableAs(),
             'body'  => [
                 'query' => [
-                    'bool' => [
-                        'must'   => [
-                            'query_string' => [
-                                'query' => $builder->query,
-                            ],
-                        ],
-                        'filter' => $filters,
+                    'match_phrase' => [
+                        // 'must'   => [
+                        //     'match_all' => new \stdClass,
+                        //     // 'query_string' => [
+                        //     //     'query'     => $builder->query,
+                        //     //     'fuzziness' => 2,
+                        //     // ],
+                        // ],
+                        'name' => 'Catalan Fumed Oak',
                     ],
                 ],
             ],
         ];
+
+        // if (!empty(array_filter($filters))) {
+        //     $params['body']['query']['bool']['filter'] = $filters;
+        // }
         if (array_key_exists('size', $options)) {
-            $query['size'] = $options['size'];
+            $params['size'] = $options['size'];
         }
         if (array_key_exists('from', $options)) {
-            $query['from'] = $options['from'];
+            $params['from'] = $options['from'];
         }
         if ($builder->callback) {
-            return call_user_func($builder->callback, $this->elasticsearch, $query);
+            return call_user_func($builder->callback, $this->elasticsearch, $params);
         }
-        // print_r(json_encode($query, JSON_PRETTY_PRINT));
-        return $this->elasticsearch->search($query);
+        // dump($params);
+
+        return $this->elasticsearch->search($params);
     }
 
     /**
