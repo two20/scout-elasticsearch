@@ -36,7 +36,7 @@ ELASTICSEARCH_INDEX=laravel
 ```
 
 ## Requirements
-Scout-Elasticsearch engine require PHP version >=5.6. As well as Elasticsearch server up and running. 
+Scout-Elasticsearch engine require PHP version >=5.6.6. As well as Elasticsearch server up and running. 
 
 ## Issues
 ------
