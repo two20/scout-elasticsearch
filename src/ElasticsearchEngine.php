@@ -132,42 +132,45 @@ class ElasticsearchEngine extends Engine
     protected function performSearch(Builder $builder, array $options = [])
     {
         $filters = [];
-        //
+
         if (array_key_exists('filters', $options) && $options['filters']) {
             foreach ($options['filters'] as $field => $value) {
-                if (is_numeric($value)) {
-                    # code...
-                }
                 $filters[] = [
-                    'term' => [
-                        $field => $value,
+                    'bool' => [
+                        'must' => [
+                            'match' => [
+                                $field => [
+                                    'query'    => $value,
+                                    'operator' => 'AND',
+                                ],
+                            ],
+                        ],
                     ],
                 ];
             }
         }
 
-        $params = [
-            'index' => $this->index,
-            'type'  => $builder->model->searchableAs(),
-            'body'  => [
-                'query' => [
-                    'match_phrase' => [
-                        // 'must'   => [
-                        //     'match_all' => new \stdClass,
-                        //     // 'query_string' => [
-                        //     //     'query'     => $builder->query,
-                        //     //     'fuzziness' => 2,
-                        //     // ],
-                        // ],
-                        'name' => 'Catalan Fumed Oak',
+        $query = [
+            'query' => [
+                'bool' => [
+                    'must'   => [
+                        'query_string' => [
+                            'query'            => $builder->query,
+                            'default_operator' => 'AND',
+                            'fuzziness'        => 1,
+                        ],
                     ],
+                    'filter' => $filters,
                 ],
             ],
         ];
 
-        // if (!empty(array_filter($filters))) {
-        //     $params['body']['query']['bool']['filter'] = $filters;
-        // }
+        $params = [
+            'index' => $this->index,
+            'type'  => $builder->model->searchableAs(),
+            'body'  => $query,
+        ];
+
         if (array_key_exists('size', $options)) {
             $params['size'] = $options['size'];
         }
@@ -177,8 +180,7 @@ class ElasticsearchEngine extends Engine
         if ($builder->callback) {
             return call_user_func($builder->callback, $this->elasticsearch, $params);
         }
-        // dump($params);
-
+        
         return $this->elasticsearch->search($params);
     }
 
@@ -228,7 +230,7 @@ class ElasticsearchEngine extends Engine
      * @param  mixed                            $results
      * @return \Illuminate\Support\Collection
      */
-    public function getIds($results)
+    public function mapIds($results)
     {
         return collect($results['hits']['hits'])
             ->pluck('_id')

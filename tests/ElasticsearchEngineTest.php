@@ -65,13 +65,22 @@ class ElasticsearchEngineTest extends AbstractTestCase
                     'bool' => [
                         'must'   => [
                             'query_string' => [
-                                'query' => 'zonda',
+                                'query'            => 'zonda',
+                                'default_operator' => 'AND',
+                                'fuzziness'        => 1,
                             ],
                         ],
                         'filter' => [
                             [
-                                'term' => [
-                                    'foo' => 1,
+                                'bool' => [
+                                    'must' => [
+                                        'match' => [
+                                            'foo' => [
+                                                'query'    => 1,
+                                                'operator' => 'AND',
+                                            ],
+                                        ],
+                                    ],
                                 ],
                             ],
                         ],
@@ -125,6 +134,11 @@ class ElasticsearchEngineTest extends AbstractTestCase
         $this->assertEquals(1, $results['hits']['total']);
         $this->assertEquals('1', $results['hits']['hits'][0]['_id']);
         $this->assertEquals(['id' => 1], $results['hits']['hits'][0]['_source']);
+
+        $builder->where('title', 'zonda');
+        $results = $engine->search($builder);
+        
+        $this->assertEquals(0, $results['hits']['total']);
     }
 
     public function test_real_elasticsearch_delete()
