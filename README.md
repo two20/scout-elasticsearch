@@ -13,12 +13,11 @@
 
 1) Download package via composer
 ```
-	composer require asolopovas/scout-elasticsearch
+composer require asolopovas/scout-elasticsearch
 ```
 
 2) Add Scout service provider to ./config/app.php
 ```php
-// config/app.php
 'providers' => [
     ...
     Laravel\Scout\ScoutServiceProvider::class,
@@ -39,7 +38,6 @@ ELASTICSEARCH_INDEX=laravel
 Scout-Elasticsearch engine require PHP version >=5.6.6. As well as Elasticsearch server up and running. 
 
 ## Issues
-------
 Bug reports and feature requests can be submitted on the [Github Issue Tracker](https://github.com/asolopovas/scout-elasticsearch/issues)
 
 ## License
